@@ -42,3 +42,29 @@ jobs:
         run: |
           docker push ${{ vars.DOCKERHUB_REPO }}:latest
           docker push ${{ vars.DOCKERHUB_REPO }}:${{ github.sha }}
+
+  deploy:
+    needs: docker
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v4
+
+      - name: Set up Kubeconfig
+        env:
+          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+        run: |
+          mkdir -p ~/.kube
+          echo "$KUBE_CONFIG" | base64 -d > ~/.kube/config
+          chmod 600 ~/.kube/config
+
+      - name: Apply manifests
+        run: kubectl apply -f k8s/ -n ship
+
+      - name: Deploy to Kubernetes
+        run: |
+          kubectl rollout restart deployment/billing-service -n ship
+          kubectl rollout status deployment/billing-service -n ship --timeout=180s
+

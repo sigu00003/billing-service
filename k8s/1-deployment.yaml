@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: billing-service
+  namespace: ship
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: svc-billing
+  template:
+    metadata:
+      labels:
+        app: svc-billing
+    spec:
+      containers:
+        - name: billing-service
+          image: docker.io/spam170/billing-service:latest
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 4001
+            - name: grpc
+              containerPort: 9001
+          env:
+            - name: JAVA_TOOL_OPTIONS
+              value: "-XX:MaxRAMPercentage=75.0"
+          resources:
+            requests:
+              memory: "384Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 4001
+            initialDelaySeconds: 30
+            periodSeconds: 10
+
