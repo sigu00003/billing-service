@@ -28,7 +28,7 @@
     </scm>
     <properties>
         <java.version>21</java.version>
-        <grpc.version>1.68.1</grpc.version>
+        <grpc.version>1.84.1</grpc.version>
         <protobuf.version>4.28.3</protobuf.version>
     </properties>
     <dependencies>
@@ -106,6 +106,13 @@
             <artifactId>spring-boot-starter-webmvc-test</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>net.devh</groupId>
+            <artifactId>grpc-server-spring-boot-starter</artifactId>
+            <version>3.1.0.RELEASE</version>
+        </dependency>
+
     </dependencies>
 
     <build>

@@ -7,17 +7,17 @@ option java_package = "de.abatultra.billing";
 option java_outer_classname = "BillingProto";
 
 service BillingService {
-  rpc CreateBillingAccount (BillingRequest) returns (BillingResponse);
+  rpc CreateInvoice (InvoiceRequest) returns (InvoiceResponse);
 }
 
-message BillingRequest {
+message InvoiceRequest {
   string route_id = 1;
   string owner = 2;
   string start_location = 3;
   string end_location = 4;
 }
 
-message BillingResponse {
+message InvoiceResponse {
   string billId = 1;
   string owner = 2;
   string registration_fee = 3;
