@@ -66,5 +66,5 @@ jobs:
       - name: Deploy to Kubernetes
         run: |
           kubectl rollout restart deployment/billing-service -n ship
-          kubectl rollout status deployment/billing-service -n ship --timeout=180s
+          kubectl rollout status deployment/billing-service -n ship --timeout=300s
 
