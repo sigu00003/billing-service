@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package billing;
+
+option java_multiple_files = true;
+option java_package = "de.abatultra.billing";
+option java_outer_classname = "BillingProto";
+
+service BillingService {
+  rpc CreateBillingAccount (BillingRequest) returns (BillingResponse);
+}
+
+message BillingRequest {
+  string route_id = 1;
+  string owner = 2;
+  string start_location = 3;
+  string end_location = 4;
+}
+
+message BillingResponse {
+  string billId = 1;
+  string owner = 2;
+  string registration_fee = 3;
+  string status = 4;
+}
