@@ -11,9 +11,11 @@ Microservice zur Verwaltung und Abfrage von Schiffsrouten inklusive automatische
 
 Das System besteht aus zwei entkoppelten Microservices im Kubernetes-Namespace `ship`, die über unterschiedliche Kommunikationsprotokolle miteinander interagieren:
 
-1. **Externe Schnittstelle (REST / HTTP):** Clients kommunizieren über die REST-API (`/api/v1/boat-routes`, Port `8080`, nach außen abgesichert via Traefik Ingress mit TLS & Basic Auth) mit dem **Boat Route Service**.
-2. **Persistenz (Spring Data JPA / JDBC):** Der ship-service speichert und verwaltet alle Routendaten in einer externen, ausschließlich aus dem Cluster erreichbaren AWS RDS PostgreSQL-Datenbank (Port 21799).
-3. **Interne Service-to-Service-Kommunikation (gRPC):** Beim Anlegen einer Route ruft der `ship-service` als **gRPC-Client** den eigenständigen **Billing Service** (`billing-service:9001`) auf. Dieser agiert als **gRPC-Server**, erstellt die Rechnung (`CreateInvoice`) und sendet synchron eine strukturierte `InvoiceResponse` (`Bill-ID`, `Owner`, `Fee`, `Status`) zurück.
+- **Externe Schnittstelle (REST / HTTP):** Clients kommunizieren über die REST-API (`/api/v1/boat-routes`, Port `8080`, nach außen abgesichert via Traefik Ingress mit TLS & Basic Auth) mit dem **Boat Route Service**.
+   
+- **Persistenz (Spring Data JPA / JDBC):** Der ship-service speichert und verwaltet alle Routendaten in einer externen, ausschließlich aus dem Cluster erreichbaren AWS RDS PostgreSQL-Datenbank (Port 21799).
+   
+- **Interne Service-to-Service-Kommunikation (gRPC):** Beim Anlegen einer Route ruft der `ship-service` als **gRPC-Client** den eigenständigen **Billing Service** (`billing-service:9001`) auf. Dieser agiert als **gRPC-Server**, erstellt die Rechnung (`CreateInvoice`) und sendet synchron eine strukturierte `InvoiceResponse` (`Bill-ID`, `Owner`, `Fee`, `Status`) zurück.
 
 ---
 
@@ -22,23 +24,27 @@ Das System besteht aus zwei entkoppelten Microservices im Kubernetes-Namespace `
 Für diesen Microservice wurde bewusst eine **klassische Schichtenarchitektur (Layered Architecture)** gewählt:
 
 1. **Pragmatismus & Single Responsibility:** Da unser `ship-service` eine klar abgegrenzte Domäne (CRUD & Suche für Schiffsrouten) abbildet, bietet eine 3-Schichten-Struktur eine optimale Balance zwischen sauberer Trennung der Verantwortlichkeiten und geringem Boilerplate-Code.
+   
 2. **Klare Trennung von API und Persistenz:** Durch den Einsatz von dedizierten DTOs (`RouteRequestDTO`, `RouteResponseDTO`) und `RouteMapper` bleibt die interne Datenbankstruktur (`Route`-Entity) vollständig vom externen REST-Vertrag entkoppelt.
+   
 3. **Hohe Wartbarkeit & Onboarding:** Neue Entwickler oder angrenzende Teams finden sich sofort zurecht, da der Datenfluss linear und transparent von der HTTP-Anfrage (`RouteController`) über die Geschäftslogik (`RouteServiceImp`) bis zur Datenbank (`RouteRepository`) verläuft.
+   
 4. **Isolierte Testbarkeit:** Jede Schicht lässt sich gezielt und unabhängig testen – von schnellen Unit-Tests in der Service- und Mapper-Schicht bis hin zu vollständigen End-to-End-Integrationstests auf Controller-Ebene mit Testcontainers.
 
 ---
 
 ## 🛠️ Verwendete Technologien
 
-
-* **Sprache & Runtime:** Java 21 (Eclipse Temurin)
-* **Framework:** Spring Boot 4 (Spring Web, Spring Data JPA, Spring Validation, Spring Boot Actuator)
-* **Kommunikation & Schnittstellen:** RESTful API (extern), **gRPC & Protocol Buffers** (interne Service-to-Service-Kommunikation mit dem `billing-service`)
-* **API-Dokumentation & Fehlerbehandlung:** OpenAPI 3 / Swagger UI, RFC 9457 (`ProblemDetail`)
-* **Code-Generierung:** Lombok
-* **Datenbank:** PostgreSQL (Produktiv: AWS RDS, Integrationstests: Testcontainers)
-* **Containerisierung & Orchestrierung:** Docker, Kubernetes (HTW-Cluster), Traefik Ingress (TLS & Basic Auth)
-* **CI/CD:** GitHub Actions (Automatisierte Tests, Docker Image Build & Push, Kubernetes Rollout)
+| Kategorie | Technologie / Tool |
+| :--- | :--- |
+| **Sprache & Runtime** | Java 21 (Eclipse Temurin) |
+| **Framework** | Spring Boot 4 (Spring Web, Spring Data JPA, Spring Validation, Spring Boot Actuator) |
+| **Kommunikation & Schnittstellen** | RESTful API (extern), **gRPC & Protocol Buffers** (interne Service-to-Service-Kommunikation)
+| **API-Dokumentation** | OpenAPI 3 / Swagger UI, RFC 9457 (`ProblemDetail`) |
+| **Code-Generierung** | Lombok |
+| **Datenbank** | PostgreSQL (Produktiv: AWS RDS, Integrationstests: Testcontainers) |
+| **Containerisierung & Orchestrierung** | Docker, Kubernetes (HTW-Cluster), Traefik Ingress (TLS & Basic Auth) |
+| **CI/CD** | GitHub Actions (Automatisierte Tests, Docker Image Build & Push, Kubernetes Rollout) |
 
 ---
 
